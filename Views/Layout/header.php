@@ -4,6 +4,7 @@
     </h1>
     <div class="text-center text-md-right px-2">
         <a class="btn btn-primary" href="/lista_tareas/Views/Categorias/">Categorías</a>
+        <a class="btn btn-primary" href="/lista_tareas/Views/Usuarios/">Usuarios</a>
         <button class="btn btn-primary" onclick="logout()">Cerrar sesión</button>
     </div>
 </div>

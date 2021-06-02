@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (sizeof($_FILES) > 0)
     {
         $tmp_name = $_FILES["photo"]["tmp_name"];
-        $foto = addslashes(file_get_contents($tmp_name));        
+        $foto = file_get_contents($tmp_name);        
     }
 
     $query = $connection->prepare('INSERT INTO usuarios VALUES(NULL, :nombre, :contrasena, :foto)');

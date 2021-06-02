@@ -23,7 +23,7 @@
 
     <?php echo $_SESSION["nombre_usuario"]; ?>
 
-    <?php echo "<img src='data:image/jpeg;base64," . base64_encode($_SESSION["foto"]) . "' >"; ?>
+    <?php echo "<img alt='Foto' src=\"data:image/jpeg;base64," . $_SESSION["foto"] . "\" >"; ?>
 
     <div class="container py-2 mb-5">
         <form class="row align-items-center">

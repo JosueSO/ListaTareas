@@ -32,7 +32,7 @@
         }
 
         public function setFoto($foto) {
-            $this->_foto = $foto;
+            $this->_foto = base64_encode($foto);
         }
 
         public function returnArray() {

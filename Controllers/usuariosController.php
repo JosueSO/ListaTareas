@@ -72,16 +72,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $usuario[] = $usuario_aux->returnArray();
         }
 
-        $response = new Response();
-        $response->setHttpStatusCode(200);
-        $response->setData($usuario);
-        $response->send();
-
         session_start();
 
         $_SESSION["id"] = $usuario_aux->getId();
         $_SESSION["nombre_usuario"] = $usuario_aux->getNombreUsuario();
         $_SESSION["foto"] = $usuario_aux->getFoto();
+
+        $response = new Response();
+        $response->setHttpStatusCode(200);
+        $response->setData($usuario);
+        $response->send();
 
         exit();
     }
