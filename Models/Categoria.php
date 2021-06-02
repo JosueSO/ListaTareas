@@ -26,12 +26,12 @@
         }
 
         public function returnArray() {
-            $tarea = array();
+            $categoria = array();
 
-            $tarea["id"] = $this->getId();
-            $tarea["nombre"] = $this->getNombre();
+            $categoria["id"] = $this->getId();
+            $categoria["nombre"] = $this->getNombre();
 
-            return $tarea;
+            return $categoria;
         }
     }
 

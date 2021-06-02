@@ -34,11 +34,11 @@
             <form action="/lista_tareas/Views/Tareas/" id="form_login">
                 <div class="mb-3">
                     <label for="username" class="form-label">Usuario</label>
-                    <input type="text" class="form-control" autocomplete="off">
+                    <input type="text" class="form-control" autocomplete="off" id="username">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" autocomplete="off">
+                    <input type="password" class="form-control" autocomplete="off" id="password">
                 </div>
                 <div class="mb-3">
                     <input type="submit" class="form-control btn btn-primary" value="Entrar">
@@ -54,6 +54,41 @@
 
         function login(e) {
             //Validar usuario
+            e.preventDefault();
+            e.stopPropagation();
+
+            //Guardar 
+            var nombre_usuario = document.getElementById("username");
+            var contasena = document.getElementById("password");
+
+            var json = {
+                nombre_usuario: nombre_usuario.value,
+                contasena: contasena.value
+            };
+
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.open("POST", "/lista_tareas/Controllers/usuariosController.php", false);
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        window.location.href = "/lista_tareas/Views/Tareas/";
+                    }
+                    else if (this.status == 500) {
+                        var response = JSON.parse(this.responseText);
+                        alert(response.messages[0]);
+                    }
+                    else if (this.status == 400) {
+                        var response = JSON.parse(this.responseText);
+                        alert(response.messages[0]);
+                    }
+                }
+            };
+
+            xhttp.setRequestHeader("Content-Type", "application/json");
+
+            xhttp.send(JSON.stringify(json));
         }
     </script>
 </body>

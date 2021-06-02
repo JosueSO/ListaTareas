@@ -49,28 +49,8 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>Categoría 1</td>
-                    <td class="text-right">
-                        <button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt" onclick="editCategory(1)"></i></button>
-                        <button type="button" class="btn btn-danger" onclick="deleteConfirm(1)"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Categoría 2</td>
-                    <td class="text-right">
-                        <button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></button>
-                        <button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Categoría 3</td>
-                    <td class="text-right">
-                        <button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></button>
-                        <button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                </tr>
+            <tbody id="category_table">
+                
             </tbody>
         </table>
     </div>
@@ -80,6 +60,8 @@
     <script>
         const div_form = document.getElementById("form_section");
         const form = document.getElementById("category_form");
+        const input_category = document.getElementById("category_name");
+        const category_table = document.getElementById("category_table");
 
         form.addEventListener("submit", saveCategory);
 
@@ -91,12 +73,48 @@
 
         function hideForm() {
             //Limpiar formulario
-
+            input_category.value = "";
             div_form.className = "d-none";
         }
 
         function getCategoryList() {
             //Obtener categorías
+
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.open("GET", "/lista_tareas/Controllers/categoriasController.php", false);
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (this.status == 200) {
+                        loadCategoryList(response.data);
+                    }
+                    else if (this.status == 500) {
+                        alert(response.messages[0]);
+                    }
+                }
+            };
+
+            xhttp.send();
+        }
+
+        function loadCategoryList(category_list) {
+            var html = ""
+
+            for(var i = 0; i < category_list.length; i++) {
+                html += 
+                    `<tr>
+                        <td>${category_list[i].nombre}</td>
+                        <td class="text-right">
+                            <button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt" onclick="editCategory(${category_list[i].id})"></i></button>
+                            <button type="button" class="btn btn-danger" onclick="deleteConfirm(${category_list[i].id})"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>`;
+            }
+
+            category_table.innerHTML = html;
         }
 
         function saveCategory(e) {
@@ -104,7 +122,34 @@
             e.stopPropagation();
             //Guardar categoría
 
-            hideForm();
+            var obj_category = {
+                nombre: input_category.value
+            };
+
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.open("POST", "/lista_tareas/Controllers/categoriasController.php", false);
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (this.status == 201) {
+                        hideForm();
+                        getCategoryList();
+                    }
+                    else if (this.status == 500) {
+                        alert(response.messages[0]);
+                    }
+                    else if (this.status == 400) {
+                        alert(response.messages[0]);
+                    }
+                }
+            };
+
+            xhttp.setRequestHeader("Content-Type", "application/json");
+
+            xhttp.send(JSON.stringify(obj_category));
         }
 
         function editCategory(id) {

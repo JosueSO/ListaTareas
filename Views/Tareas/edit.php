@@ -22,8 +22,6 @@
                 <div class="col-12 col-md-8 pt-0">
                     <select name="category" id="category" class="form-control">
                         <option value="">-- TODAS --</option>
-                        <option value="1">Categoría 1</option>
-                        <option value="2">Categoría 2</option>
                     </select>
                 </div>
             </div>
@@ -32,7 +30,7 @@
                     <label for="name">Nombre</label>
                 </div>
                 <div class="col-12 col-md-8 pt-0">
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" name="name" id="name">
                 </div>
             </div>
             <div class="form-group row">
@@ -40,15 +38,15 @@
                     <label for="date">Fecha</label>
                 </div>
                 <div class="col-12 col-md-8 pt-0">
-                    <input type="date" class="form-control">
+                    <input type="date" class="form-control" name="date" id="date">
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-12 col-md-4 pt-0">
-                    <label for="name">Descripción</label>
+                    <label for="desciption">Descripción</label>
                 </div>
                 <div class="col-12 col-md-8 pt-0">
-                    <textarea name="" class="form-control" rows="3"></textarea>
+                    <textarea name="desciption" class="form-control" rows="3" id="desciption"></textarea>
                 </div>
             </div>
             <div class="form-group row">
@@ -63,28 +61,114 @@
     <?php include('../Layout/footer.php') ?>
 
     <script>
-        getTask(1);
+        const task_id = "" + <?php echo $_GET["id"] ?> + "";
+        const boxCategory = document.getElementById("category");
+        const inputName = document.getElementById("name");
+        const inputDate = document.getElementById("date");
+        const inputDescription = document.getElementById("desciption");
 
-        function getTask(id) {
+        getCategoryList();
+
+        getTask();
+
+        function getTask() {
             var xhttp = new XMLHttpRequest();
 
-            xhttp.open("GET", "/lista_tareas/Controllers/tareasController.php?id=" + id, false);
+            xhttp.open("GET", "/lista_tareas/Controllers/tareasController.php?id=" + task_id, false);
 
             xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    var json = JSON.parse(this.responseText);
-                
-                    console.log(json);
+                if (this.readyState == 4) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (this.status == 200) {
+                        loadTask(response.data);
+                    }
+                    else {
+                        alert(response.messages[0]);
+                    }
                 }
             };
 
             xhttp.send();
         }
 
+        function loadTask(task) {
+            boxCategory.value = task.categoria_id;
+            inputName.value = task.nombre;
+            inputDate.value = task.fecha;
+            inputDescription.value = task.descripcion;
+        }
+
         function saveTask() {
             //Guardar 
+            var categoria_id = boxCategory.value;
+            var nombre = inputName.value;
+            var fecha = inputDate.value == "" ? null : inputDate.value;
+            var descripcion = inputDescription.value;
 
-            goList();
+            var json = {
+                categoria_id: categoria_id,
+                nombre: nombre,
+                fecha: fecha,
+                descripcion: descripcion
+            };
+
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.open("PUT", "/lista_tareas/Controllers/tareasController.php?id=" + task_id, false);
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (this.status == 200) {
+                        goList();
+                    }
+                    else if (this.status == 500) {
+                        alert(response.messages[0]);
+                    }
+                    else if (this.status == 400) {
+                        alert(response.messages[0]);
+                    }
+                }
+            };
+
+            xhttp.setRequestHeader("Content-Type", "application/json");
+
+            xhttp.send(JSON.stringify(json));
+        }
+
+        function getCategoryList() {
+            //Obtener categorías
+
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.open("GET", "/lista_tareas/Controllers/categoriasController.php", false);
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    var response = JSON.parse(this.responseText);
+
+                    if (this.status == 200) {
+                        loadCategoryList(response.data);
+                    }
+                    else if (this.status == 500) {
+                        alert(response.messages[0]);
+                    }
+                }
+            };
+
+            xhttp.send();
+        }
+
+        function loadCategoryList(category_list) {
+            var html = `<option value="">-- TODAS --</option>`;
+
+            for(var i = 0; i < category_list.length; i++) {
+                html += `<option value="${category_list[i].id}">${category_list[i].nombre}</option>`;
+            }
+
+            boxCategory.innerHTML = html;
         }
 
         function goList() {
